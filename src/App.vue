@@ -32,13 +32,51 @@ export default {
             }
 
             // 随机打乱数组
-            puzzleArr = puzzleArr.sort(() => {
-                return Math.random() - 0.5
-            });
+            //puzzleArr = puzzleArr.sort(() => {
+            //    return Math.random() - 0.5
+            //});
 
             // 页面显示
             this.puzzles = puzzleArr
             this.puzzles.push('')
+
+            // 初始的空格位置是15
+            let zeroindex = 15;
+            for(i = 1;i < 1024;i++) {
+                zeroindex = this.shuffle(zeroindex, this.puzzles);
+            }
+        },
+
+        //按游戏规则随机打乱
+        shuffle(index, puzzles) {
+            // 获取空格位置及其上下左右的值
+            let curNum = puzzles[index],
+                leftNum = (index - 1 >= 0) ? puzzles[index - 1] : -1,
+                rightNum = (index + 1 < 16) ? puzzles[index + 1] : -1,
+                topNum = (index - 4 >= 0) ? puzzles[index - 4] : -1,
+                bottomNum = (index + 4 < 16) ? puzzles[index + 4] : -1;
+
+            // 随机让为空的位置和旁边的位置交换数值
+            let r = Math.random();
+            if (leftNum !== -1 && index % 4 && (r > 0.75)) {
+                puzzles.$set(index - 1, curNum)
+                puzzles.$set(index, leftNum)
+                return index - 1;
+            } else if (rightNum !== -1 && 3 !== index % 4 && (r < 0.25)) {
+                puzzles.$set(index + 1, curNum)
+                puzzles.$set(index, rightNum)
+                return index + 1;
+            } else if (topNum !== -1 && index > 3 &&  (r > 0.5)) {
+                puzzles.$set(index - 4, curNum)
+                puzzles.$set(index, topNum)
+                return index - 4;
+            } else if (bottomNum !== -1 && index < 12) {
+                puzzles.$set(index + 4, curNum)
+                puzzles.$set(index, bottomNum)
+                return index + 4;
+            }
+
+            return index;
         },
 
         // 点击方块
